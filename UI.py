@@ -16,6 +16,14 @@ class UI_MainWindow(object):
         self.videowidget_1 = QVideoWidget()
         self.videowidget_2 = QVideoWidget()
 
+        #create label to show all person ID who exit more than 20 frame
+        self.window1_personID=QLabel()
+        self.window2_personID=QLabel()
+        self.window1_personID.setAlignment(Qt.AlignTop)
+        self.window2_personID.setAlignment(Qt.AlignTop)
+        self.showFrame_label = QLabel()
+        self.note_input_label=QLabel("Please input person's ID whom you want to find")
+        #self.window1_personID.setText("test")
         #create open button
         self.openBtn_1 = QPushButton('Open Video')
 
@@ -23,10 +31,12 @@ class UI_MainWindow(object):
 
         #time input button
         self.timeBtn = QPushButton("time input")
-
+        #get frame button
+        self.get_frameBtn = QPushButton("Get frame")
         #input text
         self.text_box = QTextEdit()
-
+        self.window2_timeInput = QTextEdit()
+        self.personID_TextEdict = QTextEdit()
         #create button for playing
         self.playBtn_1 = QPushButton()
         self.playBtn_1.setEnabled(False)
@@ -42,10 +52,10 @@ class UI_MainWindow(object):
 
         #create slider
         self.slider_1 = QSlider(Qt.Horizontal)
-        self.slider_1.setRange(0,0)
+        self.slider_1.setRange(0,126369)
 
         self.slider_2 = QSlider(Qt.Horizontal)
-        self.slider_2.setRange(0,0)
+        self.slider_2.setRange(0,191520)
 
 
         #create hbox layout
@@ -64,6 +74,22 @@ class UI_MainWindow(object):
         hboxLayout_2.addWidget(self.playBtn_2)
         hboxLayout_2.addWidget(self.slider_2)
 
+        #showing person ID layout
+        showPersonID = QHBoxLayout()
+        showPersonID.setContentsMargins(0,0,0,0)
+        showPersonID.addWidget(self.window1_personID)
+        showPersonID.addWidget(self.window2_personID)
+
+        showExitTime = QHBoxLayout()
+        showExitTime.setContentsMargins(0,0,0,0)
+        showExitTime.addWidget(self.personID_TextEdict)
+        showExitTime.addWidget(self.get_frameBtn)
+
+        inputTime = QHBoxLayout()
+        inputTime.setContentsMargins(0,0,0,0)
+        inputTime.addWidget(self.text_box)
+        inputTime.addWidget(self.window2_timeInput)
+
         vboxLayout = QVBoxLayout()
         vboxLayout.addWidget(self.videowidget_1)
         vboxLayout.addLayout(hboxLayout_1)
@@ -71,8 +97,16 @@ class UI_MainWindow(object):
         vboxLayout.addLayout(hboxLayout_2)
 
         vboxLayout_3 = QVBoxLayout()
-        vboxLayout_3.addWidget(self.text_box)
+        vboxLayout_3.addLayout(showPersonID)
+        vboxLayout_3.addWidget(self.note_input_label)
+        vboxLayout_3.addLayout(showExitTime)
+        vboxLayout_3.addWidget(self.showFrame_label)
+        vboxLayout_3.addLayout(inputTime)
         vboxLayout_3.addWidget(self.timeBtn)
+        vboxLayout_3.setStretch(0,8)
+        vboxLayout_3.setStretch(1,1)
+        vboxLayout_3.setStretch(2,1)
+        vboxLayout_3.setStretch(3,1)
 
         self.hboxLayout_all = QHBoxLayout()
         self.hboxLayout_all.setContentsMargins(0,0,0,0)
