@@ -22,7 +22,9 @@ class UI_MainWindow(object):
         self.window1_personID.setAlignment(Qt.AlignTop)
         self.window2_personID.setAlignment(Qt.AlignTop)
         self.showFrame_label = QLabel()
-        self.note_input_label=QLabel("Please input person's ID whom you want to find")
+        self.note_output_ID_label=QLabel("All person's ID in left two video")
+        self.note_input_ID_label=QLabel("Please input person's ID whom you want to find")
+        self.note_input_Frame_label=QLabel("Please input the time which you want to watch")
         #self.window1_personID.setText("test")
         #create open button
         self.openBtn_1 = QPushButton('Open Video')
@@ -52,10 +54,11 @@ class UI_MainWindow(object):
 
         #create slider
         self.slider_1 = QSlider(Qt.Horizontal)
-        self.slider_1.setRange(0,126369)
-
+        #self.slider_1.setRange(0,126369)
+        self.slider_1.setRange(0,0)
         self.slider_2 = QSlider(Qt.Horizontal)
-        self.slider_2.setRange(0,191520)
+        #self.slider_2.setRange(0,191520)
+        self.slider_2.setRange(0,0)
 
 
         #create hbox layout
@@ -97,14 +100,16 @@ class UI_MainWindow(object):
         vboxLayout.addLayout(hboxLayout_2)
 
         vboxLayout_3 = QVBoxLayout()
+        vboxLayout_3.addWidget(self.note_output_ID_label)
         vboxLayout_3.addLayout(showPersonID)
-        vboxLayout_3.addWidget(self.note_input_label)
+        vboxLayout_3.addWidget(self.note_input_ID_label)
         vboxLayout_3.addLayout(showExitTime)
         vboxLayout_3.addWidget(self.showFrame_label)
+        vboxLayout_3.addWidget(self.note_input_Frame_label)
         vboxLayout_3.addLayout(inputTime)
         vboxLayout_3.addWidget(self.timeBtn)
-        vboxLayout_3.setStretch(0,8)
-        vboxLayout_3.setStretch(1,1)
+        vboxLayout_3.setStretch(0,1)
+        vboxLayout_3.setStretch(1,8)
         vboxLayout_3.setStretch(2,1)
         vboxLayout_3.setStretch(3,1)
 

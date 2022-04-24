@@ -132,11 +132,11 @@ class Window(QWidget):
         self.ui.slider_2.setValue(position)
 
     def duration_changed_1(self, duration):
-        #self.ui.slider_1.setRange(0, duration)
-        return
+        self.ui.slider_1.setRange(0, duration)
+        #return
     def duration_changed_2(self, duration):
-        #self.ui.slider_2.setRange(0, duration)
-        return
+        self.ui.slider_2.setRange(0, duration)
+        #return
     def set_position_1(self, position):
         print(position)
         self.ui.mediaPlayer_1.setPosition(position)
