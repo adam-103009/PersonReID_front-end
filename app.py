@@ -153,7 +153,7 @@ class Window(QWidget):
         self.ui.slider_1.setValue(position)
         #將position數值轉換成時間，1秒為1002
         value_s=int(position/1002)
-        if(value_s%60>10):
+        if(value_s%60>=10):
             s=str(int(value_s%60))
         else:
             s="0"+str(int(value_s%60))

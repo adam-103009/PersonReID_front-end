@@ -45,20 +45,20 @@ def get_personExitFrame(videoID,personID,fps):
         for i in range(len(video[personID])):
             #if(video[personID][i][1]-video[personID][i][0]>20):
             start_value_s=int(video[personID][i][0]/fps)
-            if(int(start_value_s%60)>10):
+            if(int(start_value_s%60)>=10):
                 start_s=str(int(start_value_s%60))
             else:
                 start_s="0"+str(int(start_value_s%60))
-            if(start_value_s/60>10):
+            if(start_value_s/60>=10):
                 start_m=str(int(start_value_s/60))
             else:
                 start_m="0"+str(int(start_value_s/60))
             end_value_s=int(video[personID][i][1]/fps)
-            if(int(end_value_s%60)>10):
+            if(int(end_value_s%60)>=10):
                 end_s=str(int(end_value_s%60))
             else:
                 end_s="0"+str(int(end_value_s%60))
-            if((end_value_s/60)>10):
+            if((end_value_s/60)>=10):
                 end_m=str(int(end_value_s/60))
             else:
                 end_m="0"+str(int(end_value_s/60))
