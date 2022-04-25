@@ -22,9 +22,15 @@ class UI_MainWindow(object):
         self.window1_personID.setAlignment(Qt.AlignTop)
         self.window2_personID.setAlignment(Qt.AlignTop)
         self.showFrame_label = QLabel()
+        self.showFrame2_label = QLabel()
+        self.showFrame_label.setAlignment(Qt.AlignTop)
+        self.showFrame2_label.setAlignment(Qt.AlignTop)
         self.note_output_ID_label=QLabel("All person's ID in left two video")
         self.note_input_ID_label=QLabel("Please input person's ID whom you want to find")
+        self.note_output_Frame_label=QLabel("The time that this person appear in")
         self.note_input_Frame_label=QLabel("Please input the time which you want to watch")
+        self.window1_durationTime=QLabel()
+        self.window2_durationTime=QLabel()
         #self.window1_personID.setText("test")
         #create open button
         self.openBtn_1 = QPushButton('Open Video')
@@ -38,7 +44,7 @@ class UI_MainWindow(object):
         #input text
         self.text_box = QTextEdit()
         self.window2_timeInput = QTextEdit()
-        self.personID_TextEdict = QTextEdit()
+        self.personID_TextEdit = QTextEdit()
         #create button for playing
         self.playBtn_1 = QPushButton()
         self.playBtn_1.setEnabled(False)
@@ -72,10 +78,12 @@ class UI_MainWindow(object):
         hboxLayout_1.addWidget(self.openBtn_1)
         hboxLayout_1.addWidget(self.playBtn_1)
         hboxLayout_1.addWidget(self.slider_1)
+        hboxLayout_1.addWidget(self.window1_durationTime)
 
         hboxLayout_2.addWidget(self.openBtn_2)
         hboxLayout_2.addWidget(self.playBtn_2)
         hboxLayout_2.addWidget(self.slider_2)
+        hboxLayout_2.addWidget(self.window2_durationTime)
 
         #showing person ID layout
         showPersonID = QHBoxLayout()
@@ -85,7 +93,7 @@ class UI_MainWindow(object):
 
         showExitTime = QHBoxLayout()
         showExitTime.setContentsMargins(0,0,0,0)
-        showExitTime.addWidget(self.personID_TextEdict)
+        showExitTime.addWidget(self.personID_TextEdit)
         showExitTime.addWidget(self.get_frameBtn)
 
         inputTime = QHBoxLayout()
@@ -98,20 +106,32 @@ class UI_MainWindow(object):
         vboxLayout.addLayout(hboxLayout_1)
         vboxLayout.addWidget(self.videowidget_2)
         vboxLayout.addLayout(hboxLayout_2)
+        vboxLayout.setStretch(0,7)
+        vboxLayout.setStretch(1,1)
+        vboxLayout.setStretch(2,7)
+        vboxLayout.setStretch(3,1)
+
+        showFrame = QHBoxLayout()
+        showFrame.setContentsMargins(0,0,0,0)
+        showFrame.addWidget(self.showFrame_label)
+        showFrame.addWidget(self.showFrame2_label)
 
         vboxLayout_3 = QVBoxLayout()
         vboxLayout_3.addWidget(self.note_output_ID_label)
         vboxLayout_3.addLayout(showPersonID)
         vboxLayout_3.addWidget(self.note_input_ID_label)
         vboxLayout_3.addLayout(showExitTime)
-        vboxLayout_3.addWidget(self.showFrame_label)
+        vboxLayout_3.addWidget(self.note_output_Frame_label)
+        vboxLayout_3.addLayout(showFrame)
         vboxLayout_3.addWidget(self.note_input_Frame_label)
         vboxLayout_3.addLayout(inputTime)
         vboxLayout_3.addWidget(self.timeBtn)
         vboxLayout_3.setStretch(0,1)
-        vboxLayout_3.setStretch(1,8)
+        vboxLayout_3.setStretch(1,2)
         vboxLayout_3.setStretch(2,1)
         vboxLayout_3.setStretch(3,1)
+        vboxLayout_3.setStretch(4,1)
+        vboxLayout_3.setStretch(5,3)
 
         self.hboxLayout_all = QHBoxLayout()
         self.hboxLayout_all.setContentsMargins(0,0,0,0)
