@@ -1,5 +1,8 @@
 import json
-filename='lab1.json'
+import cv2 
+# Adjustable Variable 
+filename='tracklet_data.json'
+
 def video_filter(video):
     video_key=list(video.keys())
     result={}
@@ -64,7 +67,41 @@ def get_personExitFrame(videoID,personID,fps):
                 end_m="0"+str(int(end_value_s/60))
             frame=frame+start_m+":"+start_s+" - "+end_m+":"+end_s+"  ["+str(video[personID][i][0])+", "+str(video[personID][i][1])+"]\n"
     return frame
+
+# james
+def get_bbox(valid_plist):
+    with open('tracklet_data.json','r') as f:
+            python_dic=json.load(fp=f)
+    video=python_dic["./data/ReID_video/stream_piece_A_trim.mp4"]
+   
+    seq_count = 1
+    valid_pbbox = []
     
+    for pid in video: 
+        list = []
+        # check whether the pid is valid person           
+        if str(pid) == valid_plist[seq_count]:
+            # find target person id
+            if seq_count <= len(valid_plist)-1:
+                seq_count += 1
+            else:
+                break
+
+            for frame_d in video[str(pid)]:
+                first_f, last_f = frame_d[0], frame_d[1]
+                tf_info = [first_f, last_f]
+                bbox_detail = frame_d[2]
+                for bf_num in bbox_detail:
+                    # frame, bbox_info[x,y,w,h]
+                    # bf : record one of the existing frame of certain person id 
+                    list.append([int(bf_num), bbox_detail[str(bf_num)]])
+            valid_pbbox.append([pid,list])
+
+    return valid_pbbox
+
+
+
+
 if __name__ == '__main__':
     get_personExitFrame(1,"5")
     

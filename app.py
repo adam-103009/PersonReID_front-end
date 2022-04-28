@@ -9,11 +9,14 @@ from PyQt5.QtCore import Qt, QUrl
 from UI import UI_MainWindow
 import json_preprocess
 import cv2
+import numpy as np
 class Window(QWidget):
     def __init__(self):
         super().__init__()
         self.dic1_personID_Frame={}
         self.dic2_personID_Frame={}
+        self.list1_personID_Valid_Frame = []
+        self.list2_personID_Valid_Frame = []
         self.setWindowTitle("PyQt5 Media Player")
         self.setGeometry(350, 100, 700, 500)
         self.setWindowIcon(QIcon('player.png'))
@@ -47,6 +50,7 @@ class Window(QWidget):
         self.ui.playBtn_1.setIcon(self.style().standardIcon(QStyle.SP_MediaPlay))
         self.ui.playBtn_2.setIcon(self.style().standardIcon(QStyle.SP_MediaPlay))
         self.ui.get_frameBtn.clicked.connect(self.get_frame)
+        self.ui.get_frameBtn.clicked.connect(self.extract_pimage)
 
         self.setLayout(self.ui.hboxLayout_all)
     def get_frame(self):
@@ -55,6 +59,7 @@ class Window(QWidget):
             output="Video 1 :\nTime             Frame\n"+self.dic1_personID_Frame[t]
             self.ui.showFrame_label.setText(output)
         if(t in self.dic2_personID_Frame):
+            print("self.dic2_personID_Frame : ", self.dic2_personID_Frame)
             output="Video 2 :\nTime             Frame\n"+self.dic2_personID_Frame[t]
             self.ui.showFrame2_label.setText(output)
         return
@@ -66,6 +71,7 @@ class Window(QWidget):
                 cap=cv2.VideoCapture(filename)
                 self.video1_fps=cap.get(cv2.CAP_PROP_FPS)
                 get_personID=json_preprocess.show_personID(1)
+                self.list1_personID_Valid_Frame =get_personID
                 c=0 #每5個id一行
                 for i in range(len(get_personID)):
                     frame=json_preprocess.get_personExitFrame(1,get_personID[i],self.video1_fps)
@@ -88,6 +94,7 @@ class Window(QWidget):
                 self.video2_fps=cap.get(cv2.CAP_PROP_FPS)
                 self.perosonID_TxitEdit=""
                 get_personID=json_preprocess.show_personID(2)
+                self.list2_personID_Valid_Frame =get_personID
                 c=0 #每5個id一行
                 for i in range(len(get_personID)):
                     frame=json_preprocess.get_personExitFrame(2,get_personID[i],self.video2_fps)
@@ -100,6 +107,7 @@ class Window(QWidget):
                         c=0
                         self.perosonID_TxitEdit=self.perosonID_TxitEdit+"\n"
                     c=c+1
+                #pimg_ff_2 = json_preprocess.extract_pimage(n, get_personID) # ff : means "first frame"
                 self.ui.mediaPlayer_2.setMedia(QMediaContent(QUrl.fromLocalFile(filename)))
                 self.ui.playBtn_2.setEnabled(True)
                 self.ui.window2_personID.setText(self.perosonID_TxitEdit)
@@ -181,7 +189,36 @@ class Window(QWidget):
     def set_position_2(self, position):
         self.ui.mediaPlayer_2.setPosition(position)
 
+    def extract_pimage(self):
+        frame_count = 0
+        cap = cv2.VideoCapture('stream_piece_A_trim_mix_output.avi')
+        valid_pbbox = json_preprocess.get_bbox(self.list1_personID_Valid_Frame)
+        query_person=self.ui.personID_TextEdit.toPlainText()
+        print(f"query_person:{query_person}")
+        for pid_detail in valid_pbbox:
+            if pid_detail[0] == query_person:
+                # just read the first frame of each person  
+                while(cap.isOpened()):
+                    frame_count += 2
+                    ret, frame = cap.read()
 
+                    # extract the img of target person
+                    if frame_count == pid_detail[1][0][0]:
+                        x, y, w, h = pid_detail[1][0][1][0], pid_detail[1][0][1][1], pid_detail[1][0][1][2], pid_detail[1][0][1][3]
+                        x1, x2, y1, y2 = x, (x+w), y, (y+h) 
+                        ext_bbox = frame[y1:y2, x1:x2]
+                        # magnify the person extracted !
+                        scale_percent = 500
+                        width = int(ext_bbox.shape[1] * scale_percent / 100)
+                        height = int(ext_bbox.shape[0] * scale_percent / 100)
+                        dim = (width, height)
+                        ext_bbox = cv2.resize(ext_bbox, dim, interpolation = cv2.INTER_AREA)
+                        cv2.imshow("IMG of Query Person", ext_bbox)
+
+                    if cv2.waitKey(1) & 0xFF == ord('q'):
+                        break
+            else:
+                continue
 
 
 
