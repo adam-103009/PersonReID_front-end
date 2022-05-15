@@ -1,3 +1,3 @@
 ### Person ReID Front-End
-## Exeute
+## Execute
     python app.py
