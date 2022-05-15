@@ -10,11 +10,18 @@ from UI import UI_MainWindow
 import json_preprocess
 import cv2
 import numpy as np
+import pathlib
+import os 
+
 class Window(QWidget):
     def __init__(self):
         super().__init__()
         self.dic1_personID_Frame={}
         self.dic2_personID_Frame={}
+        self.filename1 = ""     # extract same person's images
+        self.filename2 = ""     # extract same person's images
+        self.getrecord1 = False
+        self.getrecord2 = False
         self.list1_personID_Valid_Frame = []
         self.list2_personID_Valid_Frame = []
         self.setWindowTitle("PyQt5 Media Player")
@@ -68,6 +75,8 @@ class Window(QWidget):
         if filename != '':
             if n==1:
                 #get the video fps
+                self.getrecord1 = True
+                self.filename1 = filename
                 cap=cv2.VideoCapture(filename)
                 self.video1_fps=cap.get(cv2.CAP_PROP_FPS)
                 get_personID=json_preprocess.show_personID(1)
@@ -90,6 +99,8 @@ class Window(QWidget):
                 self.perosonID_TxitEdit=self.perosonID_TxitEdit+"\n"
             elif n==2:
                 #get the video fps
+                self.getrecord2 = True
+                self.filename2 = filename
                 cap=cv2.VideoCapture(filename)
                 self.video2_fps=cap.get(cv2.CAP_PROP_FPS)
                 self.perosonID_TxitEdit=""
@@ -107,7 +118,6 @@ class Window(QWidget):
                         c=0
                         self.perosonID_TxitEdit=self.perosonID_TxitEdit+"\n"
                     c=c+1
-                #pimg_ff_2 = json_preprocess.extract_pimage(n, get_personID) # ff : means "first frame"
                 self.ui.mediaPlayer_2.setMedia(QMediaContent(QUrl.fromLocalFile(filename)))
                 self.ui.playBtn_2.setEnabled(True)
                 self.ui.window2_personID.setText(self.perosonID_TxitEdit)
@@ -190,38 +200,89 @@ class Window(QWidget):
         self.ui.mediaPlayer_2.setPosition(position)
 
     def extract_pimage(self):
-        frame_count = 0
-        cap = cv2.VideoCapture('stream_piece_A_trim_mix_output.avi')
-        valid_pbbox = json_preprocess.get_bbox(self.list1_personID_Valid_Frame)
-        query_person=self.ui.personID_TextEdit.toPlainText()
-        print(f"query_person:{query_person}")
-        for pid_detail in valid_pbbox:
-            if pid_detail[0] == query_person:
-                # just read the first frame of each person  
-                while(cap.isOpened()):
-                    frame_count += 2
-                    ret, frame = cap.read()
+        # get current working dir path
+        cpath = pathlib.Path(__file__).parent.resolve()
+        # build new dir (store images query)
+        # video 1
+        if self.getrecord1 == True:
+            newpath = str(cpath) + "\images1"
+            frame_count = 0
+            if not os.path.exists(newpath):
+                os.makedirs(newpath)
+            cap = cv2.VideoCapture(self.filename1)
+            valid_pbbox = json_preprocess.get_bbox(self.list1_personID_Valid_Frame)
+            query_pid=self.ui.personID_TextEdit.toPlainText()
+            for pid_detail in valid_pbbox:
+                if pid_detail[0] == query_pid:
+                    # just read the first frame of each person  
+                    # init var 
+                    count_len = 0
+                    img_name = 0
+                    while(cap.isOpened()):
+                        frame_count += 2
+                        ret, frame = cap.read()
+                        # extract the img of target person
+                        if count_len < len(pid_detail[1]):
+                            if frame_count == pid_detail[1][count_len][0]:
+                                x, y, w, h = pid_detail[1][count_len][1][0], pid_detail[1][count_len][1][1], pid_detail[1][count_len][1][2], pid_detail[1][count_len][1][3]
+                                x1, x2, y1, y2 = x, (x+w), y, (y+h) 
+                                ext_bbox = frame[y1:y2, x1:x2]
+                                # magnify the person extracted !
+                                scale_percent = 500
+                                width = int(ext_bbox.shape[1] * scale_percent / 100)
+                                height = int(ext_bbox.shape[0] * scale_percent / 100)
+                                dim = (width, height)
+                                ext_bbox = cv2.resize(ext_bbox, dim, interpolation = cv2.INTER_AREA)
+                                cv2.imwrite(f'{cpath}\images1\image_{img_name}.png',ext_bbox)
+                                img_name += 1
+                                count_len += 1
+                        else : 
+                            break
+                else:
+                    continue
+        
 
-                    # extract the img of target person
-                    if frame_count == pid_detail[1][0][0]:
-                        x, y, w, h = pid_detail[1][0][1][0], pid_detail[1][0][1][1], pid_detail[1][0][1][2], pid_detail[1][0][1][3]
-                        x1, x2, y1, y2 = x, (x+w), y, (y+h) 
-                        ext_bbox = frame[y1:y2, x1:x2]
-                        # magnify the person extracted !
-                        scale_percent = 500
-                        width = int(ext_bbox.shape[1] * scale_percent / 100)
-                        height = int(ext_bbox.shape[0] * scale_percent / 100)
-                        dim = (width, height)
-                        ext_bbox = cv2.resize(ext_bbox, dim, interpolation = cv2.INTER_AREA)
-                        cv2.imshow("IMG of Query Person", ext_bbox)
+        # build new dir (store images query)
+        # video 2
+        if self.getrecord2 == True:
+            newpath = str(cpath) + "\images2" 
+            frame_count = 0
+            if not os.path.exists(newpath):
+                os.makedirs(newpath)
+            cap = cv2.VideoCapture(self.filename2)
+            valid_pbbox = json_preprocess.get_bbox(self.list2_personID_Valid_Frame)
+            query_pid=self.ui.personID_TextEdit.toPlainText()
+            for pid_detail in valid_pbbox:
+                if pid_detail[0] == query_pid:
+                    # just read the first frame of each person  
+                    # init var 
+                    count_len = 0
+                    img_name = 0
+                    while(cap.isOpened()):
+                        frame_count += 2
+                        ret, frame = cap.read()
+                        # extract the img of target person
+                        if count_len < len(pid_detail[1]):
+                            if frame_count == pid_detail[1][count_len][0]:
+                                x, y, w, h = pid_detail[1][count_len][1][0], pid_detail[1][count_len][1][1], pid_detail[1][count_len][1][2], pid_detail[1][count_len][1][3]
+                                x1, x2, y1, y2 = x, (x+w), y, (y+h) 
+                                ext_bbox = frame[y1:y2, x1:x2]
+                                # magnify the person extracted !
+                                scale_percent = 500
+                                width = int(ext_bbox.shape[1] * scale_percent / 100)
+                                height = int(ext_bbox.shape[0] * scale_percent / 100)
+                                dim = (width, height)
+                                ext_bbox = cv2.resize(ext_bbox, dim, interpolation = cv2.INTER_AREA)
+                                cv2.imwrite(f'{cpath}\images2\image_{img_name}.png',ext_bbox)
+                                img_name += 1
+                                count_len += 1
+                        else : 
+                            break
+                else:
+                    continue
 
-                    if cv2.waitKey(1) & 0xFF == ord('q'):
-                        break
-            else:
-                continue
 
-
-
+        
 app = QApplication(sys.argv)
 window = Window()
 sys.exit(app.exec_())

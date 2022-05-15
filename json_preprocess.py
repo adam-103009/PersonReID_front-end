@@ -27,7 +27,6 @@ def show_personID(video_ID):
     video_filtered=video_filter(video)
     #建立兩個列表分別表示影片A和影片B當中出現超過20 frame的人
     person_ID=sorted(list(map(int,video_filtered.keys())))
-    print(person_ID)
     result=list(map(str,person_ID))
     result.insert(0,video_name)
     return result
@@ -70,15 +69,15 @@ def get_personExitFrame(videoID,personID,fps):
 
 # james
 def get_bbox(valid_plist):
-    with open('tracklet_data.json','r') as f:
+    with open(filename,'r') as f:
             python_dic=json.load(fp=f)
-    video=python_dic["./data/ReID_video/stream_piece_A_trim.mp4"]
-   
+
+    video=python_dic[list(python_dic.keys())[0]]
     seq_count = 1
     valid_pbbox = []
     
     for pid in video: 
-        list = []
+        lt = [] # list
         # check whether the pid is valid person           
         if str(pid) == valid_plist[seq_count]:
             # find target person id
@@ -94,9 +93,9 @@ def get_bbox(valid_plist):
                 for bf_num in bbox_detail:
                     # frame, bbox_info[x,y,w,h]
                     # bf : record one of the existing frame of certain person id 
-                    list.append([int(bf_num), bbox_detail[str(bf_num)]])
-            valid_pbbox.append([pid,list])
-
+                    lt.append([int(bf_num), bbox_detail[str(bf_num)]])
+            valid_pbbox.append([pid,lt])
+            
     return valid_pbbox
 
 
