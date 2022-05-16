@@ -68,35 +68,42 @@ def get_personExitFrame(videoID,personID,fps):
     return frame
 
 # james
-def get_bbox(valid_plist):
+def get_bbox(valid_plist, video_id, query_pid):
+
     with open(filename,'r') as f:
             python_dic=json.load(fp=f)
 
-    video=python_dic[list(python_dic.keys())[0]]
+    if video_id == 1:
+        video=python_dic[list(python_dic.keys())[0]]
+    elif video_id == 2:
+        video=python_dic[list(python_dic.keys())[1]]
+
+    # init var 
     seq_count = 1
     valid_pbbox = []
+    person_valid = False
     
-    for pid in video: 
-        lt = [] # list
-        # check whether the pid is valid person           
-        if str(pid) == valid_plist[seq_count]:
-            # find target person id
-            if seq_count <= len(valid_plist)-1:
-                seq_count += 1
-            else:
-                break
-
-            for frame_d in video[str(pid)]:
-                first_f, last_f = frame_d[0], frame_d[1]
-                tf_info = [first_f, last_f]
-                bbox_detail = frame_d[2]
-                for bf_num in bbox_detail:
-                    # frame, bbox_info[x,y,w,h]
-                    # bf : record one of the existing frame of certain person id 
-                    lt.append([int(bf_num), bbox_detail[str(bf_num)]])
-            valid_pbbox.append([pid,lt])
+    for index in range(1, len(valid_plist)):
+        if valid_plist[index] == query_pid:
+            person_valid = True
+    
+    if person_valid == True:
+        for pid in video: 
+            lt = [] # list
+            # check whether the pid is valid person   
+            if str(pid) == query_pid:
+                # find target person id
+                for frame_d in video[str(pid)]:
+                    first_f, last_f = frame_d[0], frame_d[1]
+                    tf_info = [first_f, last_f]
+                    bbox_detail = frame_d[2]
+                    for bf_num in bbox_detail:
+                        # frame, bbox_info[x,y,w,h]
+                        # bf : record one of the existing frame of certain person id 
+                        lt.append([int(bf_num), bbox_detail[str(bf_num)]])
+                valid_pbbox.append([pid,lt])
             
-    return valid_pbbox
+    return person_valid, valid_pbbox
 
 
 

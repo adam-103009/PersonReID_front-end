@@ -66,7 +66,6 @@ class Window(QWidget):
             output="Video 1 :\nTime             Frame\n"+self.dic1_personID_Frame[t]
             self.ui.showFrame_label.setText(output)
         if(t in self.dic2_personID_Frame):
-            print("self.dic2_personID_Frame : ", self.dic2_personID_Frame)
             output="Video 2 :\nTime             Frame\n"+self.dic2_personID_Frame[t]
             self.ui.showFrame2_label.setText(output)
         return
@@ -202,6 +201,7 @@ class Window(QWidget):
     def extract_pimage(self):
         # get current working dir path
         cpath = pathlib.Path(__file__).parent.resolve()
+
         # build new dir (store images query)
         # video 1
         if self.getrecord1 == True:
@@ -209,37 +209,44 @@ class Window(QWidget):
             frame_count = 0
             if not os.path.exists(newpath):
                 os.makedirs(newpath)
-            cap = cv2.VideoCapture(self.filename1)
-            valid_pbbox = json_preprocess.get_bbox(self.list1_personID_Valid_Frame)
+            cap1 = cv2.VideoCapture(self.filename1)
             query_pid=self.ui.personID_TextEdit.toPlainText()
-            for pid_detail in valid_pbbox:
-                if pid_detail[0] == query_pid:
-                    # just read the first frame of each person  
-                    # init var 
-                    count_len = 0
-                    img_name = 0
-                    while(cap.isOpened()):
-                        frame_count += 2
-                        ret, frame = cap.read()
-                        # extract the img of target person
-                        if count_len < len(pid_detail[1]):
-                            if frame_count == pid_detail[1][count_len][0]:
-                                x, y, w, h = pid_detail[1][count_len][1][0], pid_detail[1][count_len][1][1], pid_detail[1][count_len][1][2], pid_detail[1][count_len][1][3]
-                                x1, x2, y1, y2 = x, (x+w), y, (y+h) 
-                                ext_bbox = frame[y1:y2, x1:x2]
-                                # magnify the person extracted !
-                                scale_percent = 500
-                                width = int(ext_bbox.shape[1] * scale_percent / 100)
-                                height = int(ext_bbox.shape[0] * scale_percent / 100)
-                                dim = (width, height)
-                                ext_bbox = cv2.resize(ext_bbox, dim, interpolation = cv2.INTER_AREA)
-                                cv2.imwrite(f'{cpath}\images1\image_{img_name}.png',ext_bbox)
-                                img_name += 1
-                                count_len += 1
-                        else : 
-                            break
-                else:
-                    continue
+            person_valid1, valid_pbbox1 = json_preprocess.get_bbox(self.list1_personID_Valid_Frame, 1, query_pid)
+            if person_valid1 == True :
+                # valid_bbox will include merely query_person's pid
+                for pid_detail in valid_pbbox1:
+                    if pid_detail[0] == query_pid:
+                        # init var 
+                        count_len = 0
+                        img_name = 0
+                        print("Message Reminding 1 : Producing Image Query !")
+                        while(cap1.isOpened()):
+                            ret, frame = cap1.read()
+                            # extract the img of target person
+                            if count_len < len(pid_detail[1]):
+                                if frame_count == pid_detail[1][count_len][0]:
+                                    x, y, w, h = pid_detail[1][count_len][1][0], pid_detail[1][count_len][1][1], pid_detail[1][count_len][1][2], pid_detail[1][count_len][1][3]
+                                    x1, x2, y1, y2 = x, (x+w), y, (y+h) 
+                                    ext_bbox = frame[y1:y2, x1:x2]
+                                    # magnify the person extracted !
+                                    scale_percent = 500
+                                    width = int(ext_bbox.shape[1] * scale_percent / 100)
+                                    height = int(ext_bbox.shape[0] * scale_percent / 100)
+                                    dim = (width, height)
+                                    ext_bbox = cv2.resize(ext_bbox, dim, interpolation = cv2.INTER_AREA)
+                                    cv2.imwrite(f'{cpath}\images1\image_{img_name}.png',ext_bbox)
+                                    img_name += 1
+                                    count_len += 1
+                                
+                            else : 
+                                break
+                            
+                            frame_count += 1
+
+            else: 
+                print("Message Warning : The query pid is not valid in video 1")    
+            
+            print("Message Reminding 1 : Image Query is end !")
         
 
         # build new dir (store images query)
@@ -249,37 +256,49 @@ class Window(QWidget):
             frame_count = 0
             if not os.path.exists(newpath):
                 os.makedirs(newpath)
-            cap = cv2.VideoCapture(self.filename2)
-            valid_pbbox = json_preprocess.get_bbox(self.list2_personID_Valid_Frame)
+            cap2 = cv2.VideoCapture(self.filename2)
+            person_valid2, valid_pbbox2 = json_preprocess.get_bbox(self.list2_personID_Valid_Frame, 2, query_pid)
             query_pid=self.ui.personID_TextEdit.toPlainText()
-            for pid_detail in valid_pbbox:
-                if pid_detail[0] == query_pid:
-                    # just read the first frame of each person  
-                    # init var 
-                    count_len = 0
-                    img_name = 0
-                    while(cap.isOpened()):
-                        frame_count += 2
-                        ret, frame = cap.read()
-                        # extract the img of target person
-                        if count_len < len(pid_detail[1]):
-                            if frame_count == pid_detail[1][count_len][0]:
-                                x, y, w, h = pid_detail[1][count_len][1][0], pid_detail[1][count_len][1][1], pid_detail[1][count_len][1][2], pid_detail[1][count_len][1][3]
-                                x1, x2, y1, y2 = x, (x+w), y, (y+h) 
-                                ext_bbox = frame[y1:y2, x1:x2]
-                                # magnify the person extracted !
-                                scale_percent = 500
-                                width = int(ext_bbox.shape[1] * scale_percent / 100)
-                                height = int(ext_bbox.shape[0] * scale_percent / 100)
-                                dim = (width, height)
-                                ext_bbox = cv2.resize(ext_bbox, dim, interpolation = cv2.INTER_AREA)
-                                cv2.imwrite(f'{cpath}\images2\image_{img_name}.png',ext_bbox)
-                                img_name += 1
-                                count_len += 1
-                        else : 
-                            break
-                else:
-                    continue
+
+
+            if person_valid2 == True :
+                # valid_bbox will include merely query_person's pid
+                for pid_detail in valid_pbbox2:
+                    if pid_detail[0] == query_pid:
+                        # init var 
+                        count_len = 0
+                        img_name = 0
+                        print("Message Reminding 2 : Producing Image Query !")
+                        while(cap2.isOpened()):
+                            ret, frame = cap2.read()
+                            # extract the img of target person
+                            if count_len < len(pid_detail[1]):
+                                if frame_count == pid_detail[1][count_len][0]:
+                                    x, y, w, h = pid_detail[1][count_len][1][0], pid_detail[1][count_len][1][1], pid_detail[1][count_len][1][2], pid_detail[1][count_len][1][3]
+                                    x1, x2, y1, y2 = x, (x+w), y, (y+h) 
+                                    ext_bbox = frame[y1:y2, x1:x2]
+                                    # magnify the person extracted !
+                                    scale_percent = 500
+                                    width = int(ext_bbox.shape[1] * scale_percent / 100)
+                                    height = int(ext_bbox.shape[0] * scale_percent / 100)
+                                    dim = (width, height)
+                                    ext_bbox = cv2.resize(ext_bbox, dim, interpolation = cv2.INTER_AREA)
+                                    cv2.imwrite(f'{cpath}\images2\image_{img_name}.png',ext_bbox)
+                                    img_name += 1
+                                    count_len += 1
+                            
+                            else : 
+                                break
+
+                            # the first frame is zero
+                            # frame_count depends on video fps in reality 
+                            frame_count += 1
+                    
+            else: 
+                print("Message Warning : The query pid is not valid in video 2")    
+
+
+            print("Message Reminding 2 : Image Query is end !")
 
 
         
