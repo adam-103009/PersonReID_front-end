@@ -1,11 +1,12 @@
 from functools import partial
 from tracemalloc import start
+from PyQt5 import QtGui
 from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QHBoxLayout, QVBoxLayout, QLabel, \
     QSlider, QStyle, QSizePolicy, QFileDialog , QTextEdit,QGraphicsOpacityEffect
 import sys
 from PyQt5.QtMultimedia import QMediaPlayer, QMediaContent
 from PyQt5.QtMultimediaWidgets import QVideoWidget
-from PyQt5.QtGui import QIcon, QPalette
+from PyQt5.QtGui import QIcon, QPalette,QColor
 from PyQt5.QtCore import Qt, QUrl
 from UI import UI_MainWindow
 import json_preprocess
@@ -31,9 +32,6 @@ class Window(QWidget):
         self.setGeometry(350, 100, 700, 500)
         self.setWindowIcon(QIcon('player.png'))
 
-        #p =self.palette()
-        #p.setColor(QPalette.Window, Qt.black)
-        #self.setPalette(p)
         self.init_ui()
         self.show()
 
@@ -69,7 +67,7 @@ class Window(QWidget):
         self.ui.playBtn_2.setIcon(self.style().standardIcon(QStyle.SP_MediaPlay))
         self.ui.get_frameBtn.clicked.connect(self.get_frame)
         #self.ui.get_frameBtn.clicked.connect(self.extract_pimage)
-
+       
         self.setLayout(self.ui.hboxLayout_all)
     def get_frame(self):
         ## 初始化按鈕Text
@@ -134,7 +132,7 @@ class Window(QWidget):
                 self.video1_fps=cap.get(cv2.CAP_PROP_FPS)
                 get_personID=json_preprocess.show_personID(1)
                 self.list1_personID_Valid_Frame =get_personID
-                c=0 #每5個id一行
+                c=0 #每15個id一行
                 for i in range(len(get_personID)):
                     start_frame,frame=json_preprocess.get_personExitFrame(1,get_personID[i],self.video1_fps)
                     self.dic1_personID_Frame.update({get_personID[i]:frame})
@@ -143,7 +141,7 @@ class Window(QWidget):
                         self.perosonID_TxitEdit=self.perosonID_TxitEdit+get_personID[i]+" : \n"
                     else:
                         self.perosonID_TxitEdit=self.perosonID_TxitEdit+get_personID[i]+"    "
-                    if(c==10):
+                    if(c==15):
                         c=0
                         self.perosonID_TxitEdit=self.perosonID_TxitEdit+"\n"
                     c=c+1
@@ -160,7 +158,7 @@ class Window(QWidget):
                 self.perosonID_TxitEdit=""
                 get_personID=json_preprocess.show_personID(2)
                 self.list2_personID_Valid_Frame =get_personID
-                c=0 #每5個id一行
+                c=0 #每15個id一行
                 for i in range(len(get_personID)):
                     start_frame,frame=json_preprocess.get_personExitFrame(2,get_personID[i],self.video2_fps)
                     self.dic2_personID_Frame.update({get_personID[i]:frame})
@@ -169,7 +167,7 @@ class Window(QWidget):
                         self.perosonID_TxitEdit=self.perosonID_TxitEdit+get_personID[i]+" : \n"
                     else:
                         self.perosonID_TxitEdit=self.perosonID_TxitEdit+get_personID[i]+"    "
-                    if(c==10):
+                    if(c==15):
                         c=0
                         self.perosonID_TxitEdit=self.perosonID_TxitEdit+"\n"
                     c=c+1
@@ -261,7 +259,7 @@ class Window(QWidget):
         self.ui.slider_2.setRange(0, duration)
         #return
     def set_position_1(self, position):
-        print(position)
+        #print(position)
         self.ui.mediaPlayer_1.setPosition(position)
     def set_position_2(self, position):
         self.ui.mediaPlayer_2.setPosition(position)

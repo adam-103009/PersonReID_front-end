@@ -62,17 +62,17 @@ def get_personExitFrame(videoID,personID,fps):
             start_frame=str(video[personID][i][0])
             start_frame_out.append(int(video[personID][i][0]))
             end_frame=str(video[personID][i][1])
-            ### 如果兩個frame區段的間格小於30(小於1秒) 直接結合兩個區段
+            ### 如果兩個frame區段的間格小於15(小於0.5秒) 直接結合兩個區段
             if(i+1<len(video[personID])):
                 ##frame中斷
-                if(video[personID][i+1][0]-video[personID][i][1]>30):
+                if(video[personID][i+1][0]-video[personID][i][1]>15):
                     end_value_s=int(video[personID][i][1]/fps)
                     i=i+1
                 ##frame沒有中斷
                 else:
                     for j in range(i,len(video[personID])):
                         if(j+1<len(video[personID])):
-                            if(video[personID][j+1][0]-video[personID][j][1]<=30):
+                            if(video[personID][j+1][0]-video[personID][j][1]<=15):
                                 end_value_s=int(video[personID][j+1][1]/fps)
                                 end_frame=str(video[personID][j+1][1])
                                 i=j+2
@@ -86,6 +86,7 @@ def get_personExitFrame(videoID,personID,fps):
                 else:
                     end_m="0"+str(int(end_value_s/60))    
                 frame=frame+str(timePeriodCount)+"         "+start_m+":"+start_s+" - "+end_m+":"+end_s+"  ["+start_frame+", "+end_frame+"]\n"
+                timePeriodCount=timePeriodCount+1
             else : 
                 i=i+1
                 if(int(end_value_s%60)>=10):

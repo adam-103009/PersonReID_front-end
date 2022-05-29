@@ -7,6 +7,28 @@ from PyQt5.QtGui import QIcon, QPalette
 from PyQt5.QtCore import Qt, QUrl
 class UI_MainWindow(object):
     def setUI(self, MainWidow):
+        btnStyle='''
+                QPushButton {
+                    border: 2px solid #0033aa;
+                    border-radius: 6px;
+                    background-color: gold;
+                    color: #000000;
+                    font: bold 30px;
+                    min-width: 80px;
+                }
+
+                QPushButton:hover {
+                    color: #ffffff;
+                    background-color: 
+                        QLinearGradient(x1: 0, y1: 0, x2: 1, y2: 1,
+                                        stop: 0 #000000, stop: 1 gold);
+                }
+
+                QPushButton:pressed {
+                    background-color: #FFA823;
+                    color: #000000;
+                    font: bold 30px;
+                }'''
         #create media player object
         self.mediaPlayer_1 = QMediaPlayer(None, QMediaPlayer.VideoSurface)
         self.mediaPlayer_2 = QMediaPlayer(None, QMediaPlayer.VideoSurface)
@@ -24,7 +46,9 @@ class UI_MainWindow(object):
         self.showFrame_label = QLabel()
         self.showFrame2_label = QLabel()
         self.showFrame_label.setAlignment(Qt.AlignTop)
+        #self.showFrame_label.setStyleSheet("background-color:yellow")
         self.showFrame2_label.setAlignment(Qt.AlignTop)
+        #self.showFrame2_label.setStyleSheet("background-color:yellow")
         self.note_output_ID_label=QLabel("All person's ID in left two video")
         self.note_input_ID_label=QLabel("Please input person's ID whom you want to find")
         self.note_output_Frame_label=QLabel("The time that this person appear in")
@@ -34,20 +58,24 @@ class UI_MainWindow(object):
         #self.window1_personID.setText("test")
         #create open button
         self.openBtn_1 = QPushButton('Open Video')
-
+        self.openBtn_1.setStyleSheet(btnStyle)
         self.openBtn_2 = QPushButton('Open Video 2')
-
+        self.openBtn_2.setStyleSheet(btnStyle)
         #time input button
         self.timeBtn = QPushButton("time input")
+        self.timeBtn.setStyleSheet(btnStyle)
         #get frame button
-        self.get_frameBtn = QPushButton("Get frame")
-
+        self.get_frameBtn = QPushButton("Get Time Period")
+        #self.get_frameBtn.setStyleSheet("background-color:gold")
+        self.get_frameBtn.setStyleSheet(btnStyle)
         #show frame button
         self.video1_showframeBtn=[]
         self.video2_showframeBtn=[]
         for i in range(15):
             self.video1_showframeBtn.append(QPushButton(""))
+            self.video1_showframeBtn[i].setStyleSheet(btnStyle)
             self.video2_showframeBtn.append(QPushButton(""))
+            self.video2_showframeBtn[i].setStyleSheet(btnStyle)
         #input text
         self.text_box = QTextEdit()
         self.window2_timeInput = QTextEdit()
@@ -159,6 +187,5 @@ class UI_MainWindow(object):
         self.hboxLayout_all.setContentsMargins(0,0,0,0)
         self.hboxLayout_all.addLayout(vboxLayout)
         self.hboxLayout_all.addLayout(vboxLayout_3)
-        
         self.mediaPlayer_1.setVideoOutput(self.videowidget_1)
         self.mediaPlayer_2.setVideoOutput(self.videowidget_2)
