@@ -1,7 +1,7 @@
 import json
 import cv2 
 # Adjustable Variable 
-filename='tracklet_data.json'
+filename='smooth_json_data.json'
 
 def video_filter(video):
     video_key=list(video.keys())
@@ -31,7 +31,8 @@ def show_personID(video_ID):
     result.insert(0,video_name)
     return result
 def get_personExitFrame(videoID,personID,fps):
-    fps=fps*2
+    #fps=fps*2
+    start_frame_out = []
     with open(filename,'r') as f:
         python_dic=json.load(fp=f)
         if(videoID==1):
@@ -44,7 +45,9 @@ def get_personExitFrame(videoID,personID,fps):
     if(personID=="Video 1" or personID=="Video 2"):
         frame=""
     else:
-        for i in range(len(video[personID])):
+        i=0
+        timePeriodCount=0
+        while(i<len(video[personID])):
             #if(video[personID][i][1]-video[personID][i][0]>20):
             start_value_s=int(video[personID][i][0]/fps)
             if(int(start_value_s%60)>=10):
@@ -56,16 +59,46 @@ def get_personExitFrame(videoID,personID,fps):
             else:
                 start_m="0"+str(int(start_value_s/60))
             end_value_s=int(video[personID][i][1]/fps)
-            if(int(end_value_s%60)>=10):
-                end_s=str(int(end_value_s%60))
-            else:
-                end_s="0"+str(int(end_value_s%60))
-            if((end_value_s/60)>=10):
-                end_m=str(int(end_value_s/60))
-            else:
-                end_m="0"+str(int(end_value_s/60))
-            frame=frame+start_m+":"+start_s+" - "+end_m+":"+end_s+"  ["+str(video[personID][i][0])+", "+str(video[personID][i][1])+"]\n"
-    return frame
+            start_frame=str(video[personID][i][0])
+            start_frame_out.append(int(video[personID][i][0]))
+            end_frame=str(video[personID][i][1])
+            ### 如果兩個frame區段的間格小於30(小於1秒) 直接結合兩個區段
+            if(i+1<len(video[personID])):
+                ##frame中斷
+                if(video[personID][i+1][0]-video[personID][i][1]>30):
+                    end_value_s=int(video[personID][i][1]/fps)
+                    i=i+1
+                ##frame沒有中斷
+                else:
+                    for j in range(i,len(video[personID])):
+                        if(j+1<len(video[personID])):
+                            if(video[personID][j+1][0]-video[personID][j][1]<=30):
+                                end_value_s=int(video[personID][j+1][1]/fps)
+                                end_frame=str(video[personID][j+1][1])
+                                i=j+2
+                ##計算分鐘秒數
+                if(int(end_value_s%60)>=10):
+                    end_s=str(int(end_value_s%60))
+                else:
+                    end_s="0"+str(int(end_value_s%60))
+                if((end_value_s/60)>=10):
+                    end_m=str(int(end_value_s/60))
+                else:
+                    end_m="0"+str(int(end_value_s/60))    
+                frame=frame+str(timePeriodCount)+"         "+start_m+":"+start_s+" - "+end_m+":"+end_s+"  ["+start_frame+", "+end_frame+"]\n"
+            else : 
+                i=i+1
+                if(int(end_value_s%60)>=10):
+                    end_s=str(int(end_value_s%60))
+                else:
+                    end_s="0"+str(int(end_value_s%60))
+                if((end_value_s/60)>=10):
+                    end_m=str(int(end_value_s/60))
+                else:
+                    end_m="0"+str(int(end_value_s/60))    
+                frame=frame+str(timePeriodCount)+"         "+start_m+":"+start_s+" - "+end_m+":"+end_s+"  ["+start_frame+", "+end_frame+"]\n"
+                timePeriodCount=timePeriodCount+1
+    return start_frame_out, frame
 
 # james
 def get_bbox(valid_plist, video_id, query_pid):

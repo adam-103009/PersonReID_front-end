@@ -1,6 +1,7 @@
 from functools import partial
+from tracemalloc import start
 from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QHBoxLayout, QVBoxLayout, QLabel, \
-    QSlider, QStyle, QSizePolicy, QFileDialog , QTextEdit
+    QSlider, QStyle, QSizePolicy, QFileDialog , QTextEdit,QGraphicsOpacityEffect
 import sys
 from PyQt5.QtMultimedia import QMediaPlayer, QMediaContent
 from PyQt5.QtMultimediaWidgets import QVideoWidget
@@ -18,6 +19,8 @@ class Window(QWidget):
         super().__init__()
         self.dic1_personID_Frame={}
         self.dic2_personID_Frame={}
+        self.video1_start_frame={}
+        self.video2_start_frame={}
         self.filename1 = ""     # extract same person's images
         self.filename2 = ""     # extract same person's images
         self.getrecord1 = False
@@ -53,21 +56,72 @@ class Window(QWidget):
         self.ui.mediaPlayer_2.stateChanged.connect(partial(self.mediastate_changed,2))
         self.ui.mediaPlayer_2.positionChanged.connect(self.position_changed_2)
         self.ui.mediaPlayer_2.durationChanged.connect(self.duration_changed_2)
-
+        for i in range(15):
+            self.ui.video1_showframeBtn[i].clicked.connect(partial(self.input_time_forVideo1,i))
+            self.ui.video2_showframeBtn[i].clicked.connect(partial(self.input_time_forVideo2,i))
+            op=QGraphicsOpacityEffect()
+            op.setOpacity(0)
+            self.ui.video1_showframeBtn[i].setGraphicsEffect(op)
+            op2=QGraphicsOpacityEffect()
+            op2.setOpacity(0)
+            self.ui.video2_showframeBtn[i].setGraphicsEffect(op2)
         self.ui.playBtn_1.setIcon(self.style().standardIcon(QStyle.SP_MediaPlay))
         self.ui.playBtn_2.setIcon(self.style().standardIcon(QStyle.SP_MediaPlay))
         self.ui.get_frameBtn.clicked.connect(self.get_frame)
-        self.ui.get_frameBtn.clicked.connect(self.extract_pimage)
+        #self.ui.get_frameBtn.clicked.connect(self.extract_pimage)
 
         self.setLayout(self.ui.hboxLayout_all)
     def get_frame(self):
+        ## 初始化按鈕Text
+        for i in range(15):
+            self.ui.video1_showframeBtn[i].setText("")
+            self.ui.video2_showframeBtn[i].setText("")
         t=self.ui.personID_TextEdit.toPlainText()
+        ##### video 1 ##########
         if(t in self.dic1_personID_Frame):
-            output="Video 1 :\nTime             Frame\n"+self.dic1_personID_Frame[t]
+            output="Video 1 :\nPart     Time             Frame\n"+self.dic1_personID_Frame[t]
             self.ui.showFrame_label.setText(output)
+            personID=self.ui.personID_TextEdit.toPlainText()
+            for i in range(15):
+                if(i<len(self.video1_start_frame[personID])):
+                    self.ui.video1_showframeBtn[i].setText("Part  "+str(i))
+                    op=QGraphicsOpacityEffect()
+                    op.setOpacity(1)
+                    self.ui.video1_showframeBtn[i].setGraphicsEffect(op)
+                else:
+                    op=QGraphicsOpacityEffect()
+                    op.setOpacity(0)
+                    self.ui.video1_showframeBtn[i].setGraphicsEffect(op)
+        else :
+            output="Video 1 :\nPart     Time             Frame\n"
+            self.ui.showFrame_label.setText(output)
+            for i in range(15):
+                op=QGraphicsOpacityEffect()
+                op.setOpacity(0)
+                self.ui.video1_showframeBtn[i].setGraphicsEffect(op)
+        
+        ##### video 2 #########
         if(t in self.dic2_personID_Frame):
-            output="Video 2 :\nTime             Frame\n"+self.dic2_personID_Frame[t]
+            output="Video 2 :\nPart     Time             Frame\n"+self.dic2_personID_Frame[t]
             self.ui.showFrame2_label.setText(output)
+            personID=self.ui.personID_TextEdit.toPlainText()
+            for i in range(15):
+                if(i<len(self.video2_start_frame[personID])):
+                    self.ui.video2_showframeBtn[i].setText("Part  "+str(i))
+                    op=QGraphicsOpacityEffect()
+                    op.setOpacity(1)
+                    self.ui.video2_showframeBtn[i].setGraphicsEffect(op)
+                else:
+                    op=QGraphicsOpacityEffect()
+                    op.setOpacity(0)
+                    self.ui.video2_showframeBtn[i].setGraphicsEffect(op)
+        else :
+            output="Video 2 :\nPart     Time             Frame\n"
+            self.ui.showFrame2_label.setText(output)
+            for i in range(15):
+                op=QGraphicsOpacityEffect()
+                op.setOpacity(0)
+                self.ui.video2_showframeBtn[i].setGraphicsEffect(op)
         return
     def open_file(self,n):
         filename, _ = QFileDialog.getOpenFileName(self, "Open Video")
@@ -82,13 +136,14 @@ class Window(QWidget):
                 self.list1_personID_Valid_Frame =get_personID
                 c=0 #每5個id一行
                 for i in range(len(get_personID)):
-                    frame=json_preprocess.get_personExitFrame(1,get_personID[i],self.video1_fps)
+                    start_frame,frame=json_preprocess.get_personExitFrame(1,get_personID[i],self.video1_fps)
                     self.dic1_personID_Frame.update({get_personID[i]:frame})
+                    self.video1_start_frame.update({get_personID[i]:start_frame})
                     if(i==0):
                         self.perosonID_TxitEdit=self.perosonID_TxitEdit+get_personID[i]+" : \n"
                     else:
                         self.perosonID_TxitEdit=self.perosonID_TxitEdit+get_personID[i]+"    "
-                    if(c==5):
+                    if(c==10):
                         c=0
                         self.perosonID_TxitEdit=self.perosonID_TxitEdit+"\n"
                     c=c+1
@@ -107,13 +162,14 @@ class Window(QWidget):
                 self.list2_personID_Valid_Frame =get_personID
                 c=0 #每5個id一行
                 for i in range(len(get_personID)):
-                    frame=json_preprocess.get_personExitFrame(2,get_personID[i],self.video2_fps)
+                    start_frame,frame=json_preprocess.get_personExitFrame(2,get_personID[i],self.video2_fps)
                     self.dic2_personID_Frame.update({get_personID[i]:frame})
+                    self.video2_start_frame.update({get_personID[i]:start_frame})
                     if(i==0):
                         self.perosonID_TxitEdit=self.perosonID_TxitEdit+get_personID[i]+" : \n"
                     else:
                         self.perosonID_TxitEdit=self.perosonID_TxitEdit+get_personID[i]+"    "
-                    if(c==5):
+                    if(c==10):
                         c=0
                         self.perosonID_TxitEdit=self.perosonID_TxitEdit+"\n"
                     c=c+1
@@ -123,12 +179,24 @@ class Window(QWidget):
     def input_time(self):
         t=self.ui.text_box.toPlainText()
         if(t!=""):
-            t=int(t)/self.video1_fps*501
+            t=int(t)/self.video1_fps*1001
             self.ui.mediaPlayer_1.setPosition(int(t))
 
         t2=self.ui.window2_timeInput.toPlainText()
         if(t2!=""):
-            t2=int(t2)/self.video2_fps*501
+            t2=int(t2)/self.video2_fps*1001
+            self.ui.mediaPlayer_2.setPosition(int(t2))
+    def input_time_forVideo1(self,n):
+        personID=self.ui.personID_TextEdit.toPlainText()
+        if(n<len(self.video1_start_frame[personID])):
+            t=self.video1_start_frame[personID][n]
+            t=int(t)/self.video1_fps*1001
+            self.ui.mediaPlayer_1.setPosition(int(t))
+    def input_time_forVideo2(self,n):
+        personID=self.ui.personID_TextEdit.toPlainText()
+        if(n<len(self.video2_start_frame[personID])):
+            t2=self.video2_start_frame[personID][n]
+            t2=int(t2)/self.video2_fps*1001
             self.ui.mediaPlayer_2.setPosition(int(t2))
     def play_video(self,window_num):
         if window_num==1:
@@ -299,7 +367,6 @@ class Window(QWidget):
 
 
             print("Message Reminding 2 : Image Query is end !")
-
 
         
 app = QApplication(sys.argv)

@@ -41,6 +41,13 @@ class UI_MainWindow(object):
         self.timeBtn = QPushButton("time input")
         #get frame button
         self.get_frameBtn = QPushButton("Get frame")
+
+        #show frame button
+        self.video1_showframeBtn=[]
+        self.video2_showframeBtn=[]
+        for i in range(15):
+            self.video1_showframeBtn.append(QPushButton(""))
+            self.video2_showframeBtn.append(QPushButton(""))
         #input text
         self.text_box = QTextEdit()
         self.window2_timeInput = QTextEdit()
@@ -111,10 +118,22 @@ class UI_MainWindow(object):
         vboxLayout.setStretch(2,7)
         vboxLayout.setStretch(3,1)
 
+        video1_showFrameBtn = QVBoxLayout()
+        video1_showFrameBtn.setContentsMargins(0,0,0,0)
+        for i in range(15):
+            video1_showFrameBtn.addWidget(self.video1_showframeBtn[i])
+
+        video2_showFrameBtn = QVBoxLayout()
+        video2_showFrameBtn.setContentsMargins(0,0,0,0)
+        for i in range(15):
+            video2_showFrameBtn.addWidget(self.video2_showframeBtn[i])
+
         showFrame = QHBoxLayout()
         showFrame.setContentsMargins(0,0,0,0)
         showFrame.addWidget(self.showFrame_label)
+        showFrame.addLayout(video1_showFrameBtn)
         showFrame.addWidget(self.showFrame2_label)
+        showFrame.addLayout(video2_showFrameBtn)
 
         vboxLayout_3 = QVBoxLayout()
         vboxLayout_3.addWidget(self.note_output_ID_label)
@@ -127,11 +146,14 @@ class UI_MainWindow(object):
         vboxLayout_3.addLayout(inputTime)
         vboxLayout_3.addWidget(self.timeBtn)
         vboxLayout_3.setStretch(0,1)
-        vboxLayout_3.setStretch(1,2)
+        vboxLayout_3.setStretch(1,1)
         vboxLayout_3.setStretch(2,1)
         vboxLayout_3.setStretch(3,1)
         vboxLayout_3.setStretch(4,1)
-        vboxLayout_3.setStretch(5,3)
+        vboxLayout_3.setStretch(5,4)
+        vboxLayout_3.setStretch(6,1)
+        vboxLayout_3.setStretch(7,1)
+        vboxLayout_3.setStretch(8,1)
 
         self.hboxLayout_all = QHBoxLayout()
         self.hboxLayout_all.setContentsMargins(0,0,0,0)
